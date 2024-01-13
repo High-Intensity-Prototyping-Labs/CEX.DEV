@@ -1,0 +1,44 @@
+<html>
+        <head>
+                <title>CEX.DEV</title>
+        </head>
+
+        <body>
+                <center><b>CEX.DEV</b></center>
+                <center><h1>Developers Love CEX</h1></center>
+
+                <h2>Quick Links:</h2>
+                <ul>
+                        <li><a href="">GitHub</a></li>
+                        <li><a href="">CEX - The Standard v1.0.0</a></li>
+                </ul>
+
+                <h2>About:</h2>
+                <p>
+                        CEX (or C-Extended) aims to be a C++ subset <i>in between</i> C and C++ which takes advantage of existing C++ compilers, community and libraries while providing enough stylistic/implementation restrictions for an "idiomatic approach" to be meaningful.
+                </p>
+
+                <h2>Examples:</h2>
+                <pre>
+                        <code class="language-cpp">
+                                struct Vec3D {
+                                        float x, y, z;
+                                        
+                                        static Vec3D make(void);
+                                        Vec3D copy(void);
+
+                                        float abs(void);
+                                        void normalize(void);
+                                }
+                        </code>
+                </pre>
+        </body>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+        <!-- and it's easy to individually load additional languages -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+
+        <script>hljs.highlightAll();</script>
+</html>
