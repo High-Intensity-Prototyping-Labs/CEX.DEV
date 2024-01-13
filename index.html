@@ -21,33 +21,33 @@
                 <h2>Examples:</h2>
                 Minimalistic 3D Vector Implementation:
                 <pre><code class="language-cpp">
-                        #include &lt;cmath&gt;
+#include &lt;cmath&gt;
 
-                        struct Vec3D {
-                                float x, y, z;
-                                
-                                static Vec3D make(void);
-                                Vec3D copy(void);
+struct Vec3D {
+        float x, y, z;
+        
+        static Vec3D make(void);
+        Vec3D copy(void);
 
-                                float abs(void);
-                                void normalize(void);
-                        }
+        float abs(void);
+        void normalize(void);
+}
 
-                        ...
+...
 
-                        int main(void) {
-                                Vec3D pos1, pos2;
-                                
-                                pos1 = Vec3D::make();
+int main(void) {
+        Vec3D pos1, pos2;
+        
+        pos1 = Vec3D::make();
 
-                                pos1.x += 3.4f;
-                                pos1.y -= 9.8f;
-                                pos1.normalize();
+        pos1.x += 3.4f;
+        pos1.y -= 9.8f;
+        pos1.normalize();
 
-                                pos2 = pos1.copy();
+        pos2 = pos1.copy();
 
-                                return 0;
-                        }
+        return 0;
+}
                 </code></pre>
                 <a href="/downloads/CEX – The Standard v1.0.0 B&W.pdf">See full implementation</a>
         </body>
