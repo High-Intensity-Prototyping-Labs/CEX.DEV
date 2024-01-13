@@ -1,7 +1,7 @@
 **CEX – The Standard v1.0.0**
 
 # Motive
-C++ is a powerful too. Some may argue too powerful. Constraints in a setting of abundance can prevent mind-splintering and inconsistent paradigms.
+C++ is a powerful tool. Some may argue too powerful. Constraints in a setting of abundance can prevent mind-splintering and inconsistent paradigms.
 
 CEX (or C-Extended) aims to be a C++ subset _in between_ C and C++ which takes advantage of existing C++ compilers, community and libraries while providing enough stylistic/implementation restrictions for an "idiomatic approach" to be meaningful.
 
