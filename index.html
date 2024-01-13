@@ -20,45 +20,35 @@
 
                 <h2>Examples:</h2>
                 Minimalistic 3D Vector Implementation:
-                <pre>
-                        <code class="language-cpp">
-        #include &lt;cmath&gt;
+                <code class="language-cpp">
+                        #include &lt;cmath&gt;
 
-        struct Vec3D {
-                float x, y, z;
-                
-                static Vec3D make(void);
-                Vec3D copy(void);
+                        struct Vec3D {
+                                float x, y, z;
+                                
+                                static Vec3D make(void);
+                                Vec3D copy(void);
 
-                float abs(void);
-                void normalize(void);
-        }
+                                float abs(void);
+                                void normalize(void);
+                        }
 
-        ...
+                        ...
 
-        int main(void) {
-                Vec3D pos1, pos2;
-                
-                pos1 = Vec3D::make();
+                        int main(void) {
+                                Vec3D pos1, pos2;
+                                
+                                pos1 = Vec3D::make();
 
-                pos1.x += 3.4f;
-                pos1.y -= 9.8f;
-                pos1.normalize();
+                                pos1.x += 3.4f;
+                                pos1.y -= 9.8f;
+                                pos1.normalize();
 
-                pos2 = pos1.copy();
+                                pos2 = pos1.copy();
 
-                return 0;
-        }
-                        </code>
-                </pre>
+                                return 0;
+                        }
+                </code>
                 <a href="/downloads/CEX – The Standard v1.0.0 B&W.pdf">See full implementation</a>
         </body>
-
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
-        <!-- and it's easy to individually load additional languages -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
-
-        <script>hljs.highlightAll();</script>
 </html>
