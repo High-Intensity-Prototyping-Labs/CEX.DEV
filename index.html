@@ -34,32 +34,7 @@
                 void normalize(void);
         }
 
-        Vec3D Vec3D::make() {
-                return (struct Vec3D) {
-                        .x = 0,
-                        .y = 0,
-                        .z = 0,
-                };
-        }
-
-        Vec3D Vec3D::copy() {
-                return *this;
-        }
-
-        float Vec3D::abs() {
-                float x, y, z;
-                x = this->x;
-                y = this->y;
-                z = this->z;
-
-                return sqrt(x*x + y*y + z*z);
-        }
-
-        void Vec3D::normalize() {
-                this->x = this->x / abs();
-                this->y = this->y / abs();
-                this->z = this->z / abs();
-        }
+        ...
 
         int main(void) {
                 Vec3D pos1, pos2;
@@ -76,6 +51,7 @@
         }
                         </code>
                 </pre>
+                <a href="/downloads/CEX – The Standard v1.0.0.pdf">See full implementation</a>
         </body>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
