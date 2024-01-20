@@ -16,6 +16,9 @@
 	- To avoid polluting header files, `using` directives must be used inside of source files (never header files).
 	- Other standards also agree that `using namespace` should _never_ be used.
 	- Namespace aliasing (by `namespace X = std::whatever`) is OK in source files.
+**Amendments to the previous version (v2.3)**
+0. Introduced guidelines for compile flags during development (v2.3.0):
+	- Half of the battle is getting the compiler on your side – these are just starter guidelines.
 # Motive
 C++ is a powerful tool. Some may argue too powerful. Constraints in a setting of abundance can prevent mind-splintering and inconsistent paradigms.
 
@@ -65,6 +68,19 @@ It must be said that many of CEX's idioms are fundamentally incompatible with mu
 2. By design, working within the C++ ecosystem unlocks vast resources,
 3. All other C++ libraries/codebases _will work_ in CEX projects if included as intended,
 4. When preferred or absolutely necessary, incompatible features/implementations can be wrapped within a CEX compliant API.
+# Compile Flags
+Half of the battle is configuring the compiler to be on your side.
+
+The following compiler/linker flags are _required_ for development. I don't really care what you do for production:
+
+```bash
+CXXFLAGS=-std=c++20 -Wall -pedantic -Wextra -Werror
+LDFALGS=-fsanitize=address
+```
+
+**Note on previous C++ editions:** Special projects may have special use cases. If you know what you're doing this is fine, but it may require some creative flexibility to adhere to the standard (especially parts which may rely on newer language features).
+
+Though there aren't many, it is something to consider. If it doesn't matter to you, use the newest one by default.
 # Naming
 ## Special Methods
 There are a list of reserved method names for structs which perform _generally_ similar behaviours which can be intuitively reused across different types.
