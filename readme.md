@@ -1,237 +1,322 @@
-**CEX – The Standard v1.0.0**
+**Amendments since the previous version (v2.1.0)**
+1. Polymorphism was re-introduced to support the `Type::from(...)` feature.
+	- This would also support multiple ways to `Type::make(...)` a struct.
 
+**Amendments to the previous version (v2.2.0)**
+1. Introduced **Explicit template specialization** as an allowed feature.
+	- This comes with the caveat of NO header function definitions.
+2. Banned **Implicit templates** and **Header function definitions**.
+	- The motive for this is simple: terrible compile times and the blasphemy of writing source code in headers.
+3. Added the `free` special method.
+	- Exists as the associated method equivalent of the destructor.
+	- Some structs allocate / open / initialize things which need to be deallocated / closed / uninitialized.
 # Motive
 C++ is a powerful tool. Some may argue too powerful. Constraints in a setting of abundance can prevent mind-splintering and inconsistent paradigms.
 
 CEX (or C-Extended) aims to be a C++ subset _in between_ C and C++ which takes advantage of existing C++ compilers, community and libraries while providing enough stylistic/implementation restrictions for an "idiomatic approach" to be meaningful.
-
+# Values
+- Explicitness,
+- Consistency,
+- Transparency,
+- Human readability,
+- Bottom-up design,
 # Caveats
 - CEX is non-OOP as is conventionally understood (no inheritance, polymorphism).
-- Constructors/destructors are also not used in the conventional sense (see `new`).
+- Constructors/destructors are also not used in the conventional sense (see `make`).
 - No 'class' keyword (yes structs are technically the same – more on this later).
 - No getter/setter mentality. Struct members are accessed directly.
+- Value-initialized structs must be complete (else see `default`).
+# Permitted Features
+- Structs,
+- Namespaces,
+- **Polymorphism** (v2.1.0),
+- Methods (member/static),
+- **Explicit template specialization (v2.2.0),**
+- Operator overloads (`<<`, `==`, `>>`, etc),
+- Struct member and associated (static) functions,
+# Disallowed Features/Keywords
+- Classes,
+- Exceptions,
+- Getters/setters,
+- Virtual methods,
+- Default arguments,
+- Constructors/Destructors,
+- **Implicit templates (v2.2.0)**
+- **Header function definitions (v2.2.0)**
+- ~~Polymorphism (one name, one function)~~ (v2.1.0),
+# Recommended Alternatives
+- Structs,
+- Return values,
+- Struct member access,
+- Composition and templates,
+- See `std::optional`,
+- Use `make` / `free`,
+- Use **Explicit template specialization**,
+- Use **Explicit template specialization** with source function definitions,
+# Adapting to a C++ World
+It must be said that many of CEX's idioms are fundamentally incompatible with much of the existing C++ codebases out in the world. This must be reconciled by:
+1. CEX being a personal/organizational choice,
+2. By design, working within the C++ ecosystem unlocks vast resources,
+3. All other C++ libraries/codebases _will work_ in CEX projects if included as intended,
+4. When preferred or absolutely necessary, incompatible features/implementations can be wrapped within a CEX compliant API.
+# Naming
+## Special Methods
+There are a list of reserved method names for structs which perform _generally_ similar behaviours which can be intuitively reused across different types.
 
-# So – what _can_ you do?
-Let's start with a simple example.
-```cpp
-struct Vec3D {
-	float x, y, z;
-}
-```
-Here we have a struct of a 3D vector.
+Namely, `make`, `from`, `to`, `preset` and `free`.
 
-Normally, we may be tempted to do something like this:
-```cpp
-class Vec3D {
-private:
-	float x, y, z;
-public:
-	Vec3D(float x, float y, float z) { ... }
+- `make` – reserved for the generation of a blank or empty struct (NOT for default values – see `default`),
+- `from` – reserved for type conversions _from_ another type,
+- `to` – reserved for type conversions _to_ another type (usually of an external or standard library),
+- `preset` – similar to `make` but initializes the struct members to a set of default values rather than 0-values (or the equivalent thereof).
+- `free` – the opposite of `make` – if anything was initialized / dynamically allocated / opened and needs to be de-initialized / deallocated / closed, this is the place.
+
+As of (v2.1.0), polymorphism is supported. As a result, structs can be made `from` a variety of different types and by extension made _into_ a bunch as well.
+
+**Rationale:** 
+
+### Examples
+```C++
+struct Fahrenheit {
+	float temp;
+
+	static Fahrenheit make(void);
+	static Fahrenheit from(Celcius& t);
+	static Fahrenheit preset(void);
+
+	// Primary template for `to()`
+	template<class T>
+	T to(void);
+
+	// Explicit specialization for T=Celsius
+	template<>
+	Celsius to<Celsius>(void);
 	...
-	void setX(float x) { ... }
-	void getX() { ... }
+}
+
+struct Celsius {
+	float temp;
+
+	static Celsius make(void);
+	static Celsius from(Fahrenheit& t);
+	static Celsius preset(void);
+
+	// Primary template for `to()`
+	template<class T>
+	T to(void);
+
+	// Explicit specialization for T=Fahrenheit
+	template<>
+	Fahrenheit to<Fahrenheit>(void);
 	...
-	void normalize() { ... }
-}
-```
-And so on.
-
-There are many implications baked into the way this has been setup. Namely:
-- This class structure encourages initialization using the `Vec3D(...)` constructor.
-- It clearly discourages _direct_ access to the `x, y, z` members.
-- Some useful self-referential mutations (like `normalize()`) seem available.
-
-**How would this be done according to CEX?**
-```cpp
-struct Vec3D {
-	float x, y, z;
-	void normalize(void);
-}
-```
-
-To highlight the difference, the developer is now in a position to initialize, alter and define the data structure through built-in and C-like struct manipulations.
-
-What remains the most intact is the self-referential `normalize()` method which requires no special OOP-related features other than being self-referential (function pointers in structs are possible in C).
-
-## Using `Vec3D`
-To continue the previous example, a use case is provided below:
-```cpp
-struct Vec3D {
-	float x, y, z;
-	void normalize(void);
 }
 
-int main(void) {
-
-	Vec3D pos1, pos2;
-
-	pos1.x = 0;
-	pos1.y = 0;
-	pos1.z = 0;
-
-	pos1.x += 3.4f;
-	pos1.y -= 9.8f;
-	pos1.normalize();
-
-	pos2 = pos1;
-
-	return 0;
-}
-```
-Not bad. To the eyes of a C programmer who wants a little more, this is glorious but still missing a few things.
-
-## Introducing `make` and `copy`
-Let's please not talk about Rust and pretend that these keywords are completely new.
-
-- `make` ought to replace the constructor model and instead return an initialized copy.
-- `copy` ought to return an identical copy of the struct.
-
-```cpp
-struct Vec3D {
-	float x, y, z;
-	
-	Vec3D make(void);
-	Vec3D copy(void);
-	
-	void normalize(void);
-}
-```
-
-And so:
-
-```cpp
-int main(void) {
-
-	Vec3D pos1 = Vec3D::new();
-	// Do stuff to pos1...
-	Vec3D pos2 = pos1.copy();
-}
-```
-
-This saves us from the annoying labor of manually initializing the struct every time we'd like to use it, and also provides the means to "construct" it using function args.
-
-**Warning**: Any avid C++ dev paying attention would be seething to have noticed that `Vec3D::new()` was called without an associated object.
-
-[This is because it needs to be declared as a static-member function.](https://en.cppreference.com/w/cpp/language/static)
-
-In reality:
-```cpp
-struct Vec3D {
-	float x, y, z;
-	
-	static Vec3D make(void);
-	Vec3D copy(void);
-	
-	void normalize(void);
-}
-```
-Nice.
-
-### The `make` method
-A closer look at the make method would reveal that it must be possible to return an initialized copy of the struct without referring to an existing object (hence the entry about the static declaration).
-
-In `Vec3D` case, initializing all of the members to `0` was done manually in the previous entry:
-```cpp
-Vec3D Vec3D::make() {
-	return (struct Vec3D) {
-		.x = 0,
-		.y = 0,
-		.z = 0,
+Fahrenheit Fahrenheit::make() {
+	return Fahrenheit {
+		.temp = 0,
 	};
 }
-```
-Clean and concise, we make use of struct value-initialization syntax inline with the return statement to produce the desired copy.
 
-### The `copy` method
-This syntax for this method in C++ is actually quite nice. As a copy of the dereferenced `this` pointer can be returned as:
-```cpp
-Vec3D Vec3D::copy() {
-	return *this;
+Fahrenheit Fahrenheit::from(Celsius& t) {
+	return Fahrenheit {
+		.temp = t.temp * 9 / 5 + 32,
+	};
+}
+
+Fahrenheit Fahrenheit::preset(void) {
+	return Fahrenheit {
+		.temp = 212.0f,
+	}
+}
+
+template<>
+Celsius Fahrenheit::to<Celsius>() {
+	return (this->temp - 32) * 5 / 9;
+}
+
+Celsius Celsius::make(void) {
+	return Celsius {
+		.temp = 0,
+	};
+}
+
+Celsius Celsius::from(Fahrenheit& t) {
+	return Celsius {
+		.temp = (t.temp - 32) * 5 / 9,
+	};
+}
+
+Celsius Celsius::preset() {
+	return Celsius {
+		.temp = 100.0,
+	};
+}
+
+template<>
+Fahrenheit Celsius::to<Fahrenheit>() {
+	return (this->temp * 9 / 5) + 32;
 }
 ```
-If this isn't programmer art I don't know what is.
+## File extensions
+All CEX projects must use the `.cpp` file extension for source files and the `.hpp` file extension for header files.
 
-## Adding the `abs` method
-It would be inconvenient to develop the `normalize()` method without having easy access to the `Vec3D`'s length in cartesian space.
+**Rationale:** Although the `.c++` and `.C` extensions are disqualified by default due to special characters or filesystem indifference to capitalization, `.cxx` and `.cc` were considered to be less popular than `.cpp`. In the spirit of setting a consistent standard, the most common extension was the chosen one.
+## Namespaces
+All namespaces must be named with lower-case and underscore-separated names (no upper/lower camel case) and match the name of the header/source file is encapsulates.
 
-```cpp
-struct Vec3D {
-	float x, y, z;
-	
-	static Vec3D make(void);
-	Vec3D copy(void);
-
-	float abs(void);
-	void normalize(void);
+Example:
+```C++
+// project.hpp
+namespace project {
+	void act() { ... }
 }
+
+// project.cpp
+void project::act() { ... }
 ```
 
+**Rationale:** Exposing code modules or source files to the global scope of symbols increases the risk of collisions to no benefit when done correctly.
+### Informal module system
+Matching the namespace name with the header/source combo informally introduces the concept of modules in the build scheme. Although modules are officially being streamlined into newer C++ standards, [it's hardly catching on or working](https://source.com)
+
+An example project structure could resemble the following:
+```
+inc
+\_ project.hpp
+\_ module1.hpp
+
+src
+\_ project.cpp
+\_ module1.cpp
+```
+In which each header/source pair are implicitly glued as modules by the namespace convention.
+
+Alternatively:
+```
+project
+\_ inc
+	\_ project.hpp
+\_ src
+	\_ project.cpp
+
+module1
+\_ inc
+	\_ module1.hpp
+\_ src
+	\_ module1.cpp
+```
+In both cases, namespace and filesystem layouts are used to group code in logical modules as much as possible.
+### Multiple headers/sources in one module
+In case multiple header/source files are wanted to share the same namespace, the module must instead be created under it's own directory (`project/`) in this case and contain a separate `src` and `inc` directory in which all of the sub-sources and sub-headers will be stored, respectively.
+
+For example:
+```
+inc
+\_ project.hpp
+\_ module1.hpp
+\_ module2
+	\_ module2.hpp
+	\_ inc
+	\_ src
+```
+At which point the `module2.hpp` header would declare the module's matching namespace and allow sub-sources and headers to complete the implementation therein.
+
+One could evaluate an expanded tree of this as:
+```
+inc
+\_ project.hpp
+\_ module1.hpp
+\_ module2
+	\_ module2.hpp
+	\_ inc
+	|	\_ submodule1.hpp
+	|	\_ submodule2.hpp
+	\_ src
+		\_ submodule1.cpp
+		\_ submodule2.cpp
+```
 Where,
-```cpp
-float Vec3D::abs() {
-	float x, y, z;
-	x = this->x;
-	y = this->y;
-	z = this->z;
-
-	return sqrt(x*x + y*y + z*z);
+```C++
+// module2.hpp
+namespace module2 {
+	namespace submodule1;
+	namespace submodule2;
 }
+
+// subheader1.hpp
+
+
+// subsource1.cpp
+
 ```
-*Note*: for those concerned about performance reduction when "copying" `x, y, z` out of their `this->*` counterparts, I'd recommend you check out [godbolt](https://godbolt.org/).
+## Structs
+_Remember there are no class declarations._
 
-## Wrapping things up
-Completing the previous example with function definitions:
-```cpp
-#include <cmath>
+Structs must be named in the upper camel case format, namely prevent name collisions with parent namespaces which could have good reason to match (a `project` namespace containing a `Project` struct).
 
-struct Vec3D {
-	float x, y, z;
+Example:
+```C++
+// project.hpp
+namespace project {
+	struct Project { ... }
+}
+
+// project.cpp
+using project::Project;
+```
+
+**Rationale:** The default accessibility is public and structs are typically thought of passive data carriers. This encourages the model of associated functions and transparent data types as opposed to the tightly encapsulated getter/setter model typically associated to classes.
+### Inheritance vs Composition
+Under long a chain of inheritance (entity, animal, mammal, dog, pitbull, etc.), any changes in the parent types have immediate back-propagating consequences throughout the codebase. 
+
+These changes need not be breaking – a monolithic type hierarchy will inevitably impose greater leverage on parent types such that minor changes have greater and greater impact on the rest of the code.
+
+To make matters worse, standard library and otherwise large/complex objects are strongly discouraged from being inherited to expand functionality. Thus, alternatives and workarounds are needed depending on the types involved (subject to developer preference).
+
+Instead, lateral type conversions (`to` and `from`) mixed with composition/wrappers are encouraged to minimize (albeit not eliminate) monolithic type hierarchies within code. 
+
+**Rationale:** Prevents back-propagated changes to entire codebases and monolithic type dependency hierarchies. Also encourages lateral type conversions.
+### Using Directives
+When there are no collisions with other dependencies, apply `using` directives to structs/objects by default.
+
+Example:
+```C++
+// project.hpp
+namespace project {
+	struct Project { 
+		void act(void);
+	}
+}
+
+// project.cpp
+using project::Project;
+
+void Project::act() { ... }
+```
+
+In cases where there may be a conflict or confusion, apply a `using` directive to the nearest parent namespace or struct (like `using io` and `using rf`) such that it becomes possible to have a succinct but clear distinction between the two (`io::Reader` and `rf::Reader`, for example).
+
+Example (needs to be redone – I don't advocate namespaces within namespaces):
+```C++
+// util.hpp
+namespace util {
+	namespace io {
+		struct Reader { ... }
+	}
 	
-	static Vec3D make(void);
-	Vec3D copy(void);
-
-	float abs(void);
-	void normalize(void);
+	namespace rf {
+		struct Reader { ... }
+	}
 }
 
-Vec3D Vec3D::make() {
-	return (struct Vec3D) {
-		.x = 0,
-		.y = 0,
-		.z = 0,
-	};
-}
-
-Vec3D Vec3D::copy() {
-	return *this;
-}
-
-float Vec3D::abs() {
-	float x, y, z;
-	x = this->x;
-	y = this->y;
-	z = this->z;
-
-	return sqrt(x*x + y*y + z*z);
-}
-
-void Vec3D::normalize() {
-	this->x = this->x / abs();
-	this->y = this->y / abs();
-	this->z = this->z / abs();
-}
+// main.cpp
+using namespace util::io;
+using namespace util::rf;
 
 int main(void) {
-	Vec3D pos1, pos2;
-	
-	pos1 = Vec3D::make();
-
-	pos1.x += 3.4f;
-	pos1.y -= 9.8f;
-	pos1.normalize();
-
-	pos2 = pos1.copy();
-
+	io::Reader a;
+	rf::Reader b;
+	...
 	return 0;
 }
 ```
