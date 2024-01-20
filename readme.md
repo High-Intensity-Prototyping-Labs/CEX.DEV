@@ -1,15 +1,21 @@
-**Amendments since the previous version (v2.1.0)**
-1. Polymorphism was re-introduced to support the `Type::from(...)` feature.
+**Amendments since the previous version (v2.1)**
+0. Polymorphism was re-introduced (v2.1.0):
+	- To support the `Type::from(...)` feature.
 	- This would also support multiple ways to `Type::make(...)` a struct.
 
-**Amendments to the previous version (v2.2.0)**
-1. Introduced **Explicit template specialization** as an allowed feature.
-	- This comes with the caveat of NO header function definitions.
-2. Banned **Implicit templates** and **Header function definitions**.
-	- The motive for this is simple: terrible compile times and the blasphemy of writing source code in headers.
-3. Added the `free` special method.
-	- Exists as the associated method equivalent of the destructor.
-	- Some structs allocate / open / initialize things which need to be deallocated / closed / uninitialized.
+**Amendments to the previous version (v2.2)**
+0. Introduction of templating with caveats (v2.2.0):
+	- Introduced **Explicit template specialization** as an allowed feature.
+		- This comes with the caveat of NO header function definitions.
+	- Banned **Implicit templates** and **Header function definitions**.
+		- The motive for this is simple: terrible compile times and the blasphemy of writing source code in headers.
+	- Added the `free` special method.
+		- Exists as the associated method equivalent of the destructor.
+		- Some structs allocate / open / initialize things which need to be deallocated / closed / uninitialized.
+1. Tighter usage of `using` directives and `namespace` aliasing (v2.2.1):
+	- To avoid polluting header files, `using` directives must be used inside of source files (never header files).
+	- Other standards also agree that `using namespace` should _never_ be used.
+	- Namespace aliasing (by `namespace X = std::whatever`) is OK in source files.
 # Motive
 C++ is a powerful tool. Some may argue too powerful. Constraints in a setting of abundance can prevent mind-splintering and inconsistent paradigms.
 
@@ -76,7 +82,7 @@ As of (v2.1.0), polymorphism is supported. As a result, structs can be made `fro
 **Rationale:** 
 
 ### Examples
-```C++
+```cpp
 struct Fahrenheit {
 	float temp;
 
@@ -165,7 +171,7 @@ All CEX projects must use the `.cpp` file extension for source files and the `.h
 All namespaces must be named with lower-case and underscore-separated names (no upper/lower camel case) and match the name of the header/source file is encapsulates.
 
 Example:
-```C++
+```cpp
 // project.hpp
 namespace project {
 	void act() { ... }
@@ -176,6 +182,28 @@ void project::act() { ... }
 ```
 
 **Rationale:** Exposing code modules or source files to the global scope of symbols increases the risk of collisions to no benefit when done correctly.
+### Quick rules for namespaces
+- Never `using namespace` anywhere, _ever_.
+- All `using` directives must go in source files.
+- Namespaces can be aliased (NOT `using namespace`) in source files (minimize).
+
+```cpp
+// project.hpp
+using std::whatever; // NO
+using namespace std; // NEVER
+...
+namespace project {
+	struct Project { ... };
+}
+
+// project.cpp
+using std::whatever; // Yes
+using namespace std; // STILL NO
+...
+using project::Project; // Yes
+...
+namespace fs = std::filesystem; // OK
+```
 ### Informal module system
 Matching the namespace name with the header/source combo informally introduces the concept of modules in the build scheme. Although modules are officially being streamlined into newer C++ standards, [it's hardly catching on or working](https://source.com)
 
@@ -236,7 +264,7 @@ inc
 		\_ submodule2.cpp
 ```
 Where,
-```C++
+```cpp
 // module2.hpp
 namespace module2 {
 	namespace submodule1;
@@ -255,7 +283,7 @@ _Remember there are no class declarations._
 Structs must be named in the upper camel case format, namely prevent name collisions with parent namespaces which could have good reason to match (a `project` namespace containing a `Project` struct).
 
 Example:
-```C++
+```cpp
 // project.hpp
 namespace project {
 	struct Project { ... }
@@ -280,7 +308,7 @@ Instead, lateral type conversions (`to` and `from`) mixed with composition/wrapp
 When there are no collisions with other dependencies, apply `using` directives to structs/objects by default.
 
 Example:
-```C++
+```cpp
 // project.hpp
 namespace project {
 	struct Project { 
@@ -294,10 +322,10 @@ using project::Project;
 void Project::act() { ... }
 ```
 
-In cases where there may be a conflict or confusion, apply a `using` directive to the nearest parent namespace or struct (like `using io` and `using rf`) such that it becomes possible to have a succinct but clear distinction between the two (`io::Reader` and `rf::Reader`, for example).
+Long chains of scope (e.g.: `util::rf::Reader`) which may pose confusion or name collisions with another namespace (e.g.: `util::io::Reader`), it is considered acceptable to _alias_ namespaces to the nearest heterogenous parent (NOT `using` the namespace, _ever_).
 
 Example (needs to be redone – I don't advocate namespaces within namespaces):
-```C++
+```cpp
 // util.hpp
 namespace util {
 	namespace io {
@@ -310,8 +338,8 @@ namespace util {
 }
 
 // main.cpp
-using namespace util::io;
-using namespace util::rf;
+namespace io = util::io;
+namespace rf = util::rf;
 
 int main(void) {
 	io::Reader a;
