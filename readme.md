@@ -23,6 +23,9 @@
 2. Standard updating automation introduced (v2.3.1).
 3. Formatting fix (error in the markdown) (v2.3.2).
 4. Added `copy` as a special function (v2.3.3).
+
+**Amendments to the previous version (v.2.4)**
+1. Added a reference to the _Google C++ Style Guide_ for header naming and include conventions (there are probably more to come in the future).
 # Motive
 C++ is a powerful tool. Some may argue too powerful. Constraints in a setting of abundance can prevent mind-splintering and inconsistent paradigms.
 
