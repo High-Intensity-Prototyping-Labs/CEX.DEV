@@ -98,6 +98,7 @@ Namely, `make`, `from`, `to`, `preset`, `copy` and `free`.
 - `from` – reserved for type conversions _from_ another type,
 - `to` – reserved for type conversions _to_ another type (usually of an external or standard library),
 - `preset` – similar to `make` but initializes the struct members to a set of default values rather than 0-values (or the equivalent thereof).
+- `copy` – returns an independent copy of the struct and its contents. In case of dynamic content/members, perform the appropriate allocations/copying.
 - `free` – the opposite of `make` – if anything was initialized / dynamically allocated / opened and needs to be de-initialized / deallocated / closed, this is the place.
 
 As of (v2.1.0), polymorphism is supported. As a result, structs can be made `from` a variety of different types and by extension made _into_ a bunch as well.
