@@ -22,6 +22,7 @@
   - Half of the battle is getting the compiler on your side – these are just starter guidelines.
 2. Standard updating automation introduced (v2.3.1).
 3. Formatting fix (error in the markdown) (v2.3.2).
+4. Added `copy` as a special function (v2.3.3).
 # Motive
 C++ is a powerful tool. Some may argue too powerful. Constraints in a setting of abundance can prevent mind-splintering and inconsistent paradigms.
 
@@ -88,7 +89,7 @@ Though there aren't many, it is something to consider. If it doesn't matter to y
 ## Special Methods
 There are a list of reserved method names for structs which perform _generally_ similar behaviours which can be intuitively reused across different types.
 
-Namely, `make`, `from`, `to`, `preset` and `free`.
+Namely, `make`, `from`, `to`, `preset`, `copy` and `free`.
 
 - `make` – reserved for the generation of a blank or empty struct (NOT for default values – see `default`),
 - `from` – reserved for type conversions _from_ another type,
@@ -296,6 +297,8 @@ namespace module2 {
 // subsource1.cpp
 
 ```
+## Headers
+Please see the _Names and Order of Includes_ section of the _Google C++ Style Guide_ https://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes.
 ## Structs
 _Remember there are no class declarations._
 
