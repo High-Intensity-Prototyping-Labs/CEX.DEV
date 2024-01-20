@@ -1,24 +1,27 @@
 **Amendments since the previous version (v2.1)**
-0. Polymorphism was re-introduced (v2.1.0):
-	- To support the `Type::from(...)` feature.
-	- This would also support multiple ways to `Type::make(...)` a struct.
+1. Polymorphism was re-introduced (v2.1.0):
+  - To support the `Type::from(...)` feature.
+  - This would also support multiple ways to `Type::make(...)` a struct.
 
 **Amendments to the previous version (v2.2)**
-0. Introduction of templating with caveats (v2.2.0):
-	- Introduced **Explicit template specialization** as an allowed feature.
-		- This comes with the caveat of NO header function definitions.
-	- Banned **Implicit templates** and **Header function definitions**.
-		- The motive for this is simple: terrible compile times and the blasphemy of writing source code in headers.
-	- Added the `free` special method.
-		- Exists as the associated method equivalent of the destructor.
-		- Some structs allocate / open / initialize things which need to be deallocated / closed / uninitialized.
-1. Tighter usage of `using` directives and `namespace` aliasing (v2.2.1):
-	- To avoid polluting header files, `using` directives must be used inside of source files (never header files).
-	- Other standards also agree that `using namespace` should _never_ be used.
-	- Namespace aliasing (by `namespace X = std::whatever`) is OK in source files.
+1. Introduction of templating with caveats (v2.2.0):
+  - Introduced **Explicit template specialization** as an allowed feature.
+  - This comes with the caveat of NO header function definitions.
+  - Banned **Implicit templates** and **Header function definitions**.
+  - The motive for this is simple: terrible compile times and the blasphemy of writing source code in headers.
+  - Added the `free` special method.
+  - Exists as the associated method equivalent of the destructor.
+  - Some structs allocate / open / initialize things which need to be deallocated / closed / uninitialized.
+ 2. Tighter usage of `using` directives and `namespace` aliasing (v2.2.1):
+  - To avoid polluting header files, `using` directives must be used inside of source files (never header files).
+  - Other standards also agree that `using namespace` should _never_ be used.
+  - Namespace aliasing (by `namespace X = std::whatever`) is OK in source files.
+
 **Amendments to the previous version (v2.3)**
-0. Introduced guidelines for compile flags during development (v2.3.0):
-	- Half of the battle is getting the compiler on your side – these are just starter guidelines.
+1. Introduced guidelines for compile flags during development (v2.3.0):
+  - Half of the battle is getting the compiler on your side – these are just starter guidelines.
+2. Standard updating automation introduced (v2.3.1).
+3. Formatting fix (error in the markdown) (v2.3.2).
 # Motive
 C++ is a powerful tool. Some may argue too powerful. Constraints in a setting of abundance can prevent mind-splintering and inconsistent paradigms.
 
